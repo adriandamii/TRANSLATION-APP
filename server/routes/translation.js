@@ -5,14 +5,32 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
-  try {
-    const translation = await Translation.find();
-    res.status(200).json(translation);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-});
+router.get(
+  '/',
+  expressAsyncHandler(async (req, res) => {
+    const pageSize = 5;
+    const page = Number(req.query.pageNumber) || 1;
+    const name = req.query.name || '';
+    const office = req.query.office || '';
+
+    const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
+    const officeFilter = office ? { office } : {};
+
+    const count = await Translation.countDocuments({
+      ...nameFilter,
+      ...officeFilter,
+    });
+
+    const translations = await Translation.find({
+      ...nameFilter,
+      ...officeFilter,
+    })
+      .skip(pageSize * (page - 1))
+      .limit(pageSize);
+
+    res.send({ translations, count, page, pages: Math.ceil(count / pageSize) });
+  })
+);
 
 router.get(
   '/offices',
