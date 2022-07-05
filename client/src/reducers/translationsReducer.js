@@ -16,6 +16,9 @@ import {
   TRANSLATION_DETAILS_REQUEST,
   TRANSLATION_DETAILS_FAIL,
   TRANSLATION_CREATE_RESET,
+  TRANSLATION_OFFICE_LIST_REQUEST,
+  TRANSLATION_OFFICE_LIST_SUCCESS,
+  TRANSLATION_OFFICE_LIST_FAIL,
 } from '../constants/actionTypes';
 
 export const translationListReducer = (
@@ -26,8 +29,30 @@ export const translationListReducer = (
     case TRANSLATION_LIST_REQUEST:
       return { loading: true };
     case TRANSLATION_LIST_SUCCESS:
-      return { loading: false, translations: action.payload };
+      return { 
+        loading: false, 
+        translations: action.payload.translations,
+        pages: action.payload.pages,
+        page: action.payload.page,
+        count: action.payload.count,
+      };
     case TRANSLATION_LIST_FAIL:
+      return { loading: false, error: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const translationOfficeListReducer = (
+  state = { loading: true, offices: [] },
+  action
+) => {
+  switch (action.type) {
+    case TRANSLATION_OFFICE_LIST_REQUEST:
+      return { loading: true };
+    case TRANSLATION_OFFICE_LIST_SUCCESS:
+      return { loading: false, offices: action.payload };
+    case TRANSLATION_OFFICE_LIST_FAIL:
       return { loading: false, error: action.payload };
     default:
       return state;
