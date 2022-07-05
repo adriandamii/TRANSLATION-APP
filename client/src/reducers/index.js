@@ -7,4 +7,5 @@ export const reducer = combineReducers({
   deletedTranslation: reducers.translationDeleteReducer,
   updatedTranslation: reducers.translationUpdateReducer,
   detailedTranslation: reducers.translationDetailsReducer,
+  translationsOfficeList: reducers.translationOfficeListReducer,
 });
