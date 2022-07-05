@@ -14,24 +14,48 @@ import {
   TRANSLATION_DETAILS_REQUEST,
   TRANSLATION_DETAILS_SUCCESS,
   TRANSLATION_DETAILS_FAIL,
+  TRANSLATION_OFFICE_LIST_REQUEST,
+  TRANSLATION_OFFICE_LIST_SUCCESS,
+  TRANSLATION_OFFICE_LIST_FAIL,
 } from '../constants/actionTypes';
 import Axios from 'axios';
 
-export const getTranslations = () => async (dispatch) => {
+export const getTranslations = ({
+  pageNumber = '',
+  name = '',
+  office = '',
+}) => async (dispatch) => {
   dispatch({ type: TRANSLATION_LIST_REQUEST });
   try {
-    const { data } = await Axios.get('http://localhost:5000/translations');
-
+    const { data } = await Axios.get(
+      `http://localhost:5000/translations?pageNumber=${pageNumber}&name=${name}&office=${office}`
+    );
     dispatch({ type: TRANSLATION_LIST_SUCCESS, payload: data });
   } catch (error) {
     dispatch({ type: TRANSLATION_LIST_FAIL, payload: error.message });
   }
 };
 
+export const getOffices = () => async (dispatch) => {
+  dispatch({
+    type: TRANSLATION_OFFICE_LIST_REQUEST,
+  });
+  try {
+    const { data } = await Axios.get(
+      'http://localhost:5000/translations/offices'
+    );
+    dispatch({ type: TRANSLATION_OFFICE_LIST_SUCCESS, payload: data });
+  } catch (error) {
+    dispatch({ type: TRANSLATION_OFFICE_LIST_FAIL, payload: error.message });
+  }
+};
+
 export const detailsTranslation = (translationId) => async (dispatch) => {
   dispatch({ type: TRANSLATION_DETAILS_REQUEST, payload: translationId });
   try {
-    const { data } = await Axios.get( `http://localhost:5000/translations/${translationId}`);
+    const { data } = await Axios.get(
+      `http://localhost:5000/translations/${translationId}`
+    );
     dispatch({ type: TRANSLATION_DETAILS_SUCCESS, payload: data });
   } catch (error) {
     dispatch({
@@ -60,15 +84,6 @@ export const createTranslation = (newTranslation) => async (dispatch) => {
     dispatch({ type: TRANSLATION_CREATE_FAIL, payload: message });
   }
 };
-// export const getOffices = () => async (dispatch) => {
-//   try {
-//     const { data } = await api.fetchOffices();
-
-//     dispatch({ type: FETCH_ALL, payload: data });
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
 
 export const updateTranslation = (translation) => async (dispatch) => {
   dispatch({ type: TRANSLATION_UPDATE_REQUEST, payload: translation });
