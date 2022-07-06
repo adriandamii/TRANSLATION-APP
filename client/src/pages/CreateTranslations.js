@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, InputGroup } from 'react-bootstrap';
 import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { createTranslation } from '../actions/translations';
+import { createTranslation, getOffices } from '../actions/translations';
 import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import SuccessBox from '../components/SuccessBox';
 import { TRANSLATION_CREATE_RESET } from '../constants/actionTypes';
 
 export default function CreateTranslations() {
+  const [inputReadOnly, setInputReadOnly] = useState(false);
   const navigate = useNavigate();
   const [postData, setPostData] = useState({
     name: '',
@@ -17,8 +18,22 @@ export default function CreateTranslations() {
     pagePrice: '',
     numberOfPages: '',
   });
-
+  
+  const translationsOfficeList = useSelector(
+    (state) => state.translationsOfficeList
+  );
+  
+  const {
+    loading: loadingOffices,
+    error: errorOffices,
+    offices,
+  } = translationsOfficeList;
+  
   const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getOffices());
+  }, [dispatch]);
+  
   const createdTranslation = useSelector((state) => state.createdTranslation);
   const {
     loading: loadingCreate,
@@ -53,6 +68,7 @@ export default function CreateTranslations() {
     e.preventDefault();
     clear();
   };
+  
   return (
     <div>
       <Helmet>
@@ -75,15 +91,28 @@ export default function CreateTranslations() {
             required
           />
         </Form.Group>
-        <Form.Group className="mb-3" controlId="office">
-          <Form.Label>Office</Form.Label>
-          <Form.Control
-            name="office"
-            value={postData.office}
-            onChange={handleChange}
-            required
-          />
-        </Form.Group>
+        <Form.Label>Create or Select the Office</Form.Label>
+        {loadingOffices ? (
+          <LoadingBox></LoadingBox>
+        ) : errorOffices ? (
+          <MessageBox variant="danger">{errorOffices}</MessageBox>
+        ) : (
+          <InputGroup className="mb-3" controlid="office">
+            <select
+              title="create or select"
+              onChange={(e) =>
+                setPostData({ ...postData, office: e.target.value })
+              }
+            >
+              {offices.map((office) => (
+                <option key={office} value={office} href="#">
+                  {office}
+                </option>
+              ))}
+            </select>
+            <Form.Control name="office" value={postData.office} required />
+          </InputGroup>
+        )}
         <Form.Group className="mb-3" controlId="pagePrice">
           <Form.Label>Page price</Form.Label>
           <Form.Control
