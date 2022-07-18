@@ -10,9 +10,9 @@ import SuccessBox from '../components/SuccessBox';
 import { TRANSLATION_CREATE_RESET } from '../constants/actionTypes';
 
 export default function CreateTranslations() {
-  const [inputReadOnly, setInputReadOnly] = useState(false);
+  const [inputReadOnly, setInputReadOnly] = useState(true);
   const navigate = useNavigate();
-  const [postData, setPostData] = useState({
+  const [translationData, setTranslationData] = useState({
     name: '',
     office: '',
     pagePrice: '',
@@ -43,19 +43,24 @@ export default function CreateTranslations() {
   } = createdTranslation;
 
   const clear = () => {
-    setPostData({ name: '', office: '', pagePrice: '', numberOfPages: '' });
+    setTranslationData({ 
+      name: '', 
+      office: '', 
+      pagePrice: '', 
+      numberOfPages: '', 
+    });
   };
 
   function handleChange(e) {
-    setPostData({
-      ...postData,
+    setTranslationData({
+      ...translationData,
       [e.target.name]: e.target.value,
     });
   }
 
   useEffect(() => {
     if (translations) {
-      setPostData(translations);
+      setTranslationData(translations);
     }
     if (successCreate) {
       dispatch({ type: TRANSLATION_CREATE_RESET });
@@ -64,10 +69,19 @@ export default function CreateTranslations() {
   }, [translations, successCreate]);
 
   const handleSubmit = async (e) => {
-    dispatch(createTranslation(postData));
+    dispatch(createTranslation(translationData));
     e.preventDefault();
     clear();
   };
+  
+  if (loadingOffices === false && offices[0] !== '') {
+    offices.unshift('');
+  }
+  
+  function handleCreateSelect() {
+    setInputReadOnly(!inputReadOnly);
+    setTranslationData({ ...translationData, office: '' });
+  }
   
   return (
     <div>
@@ -86,38 +100,57 @@ export default function CreateTranslations() {
           <Form.Label>Name</Form.Label>
           <Form.Control
             name="name"
-            value={postData.name}
+            value={translationData.name}
             onChange={handleChange}
             required
           />
         </Form.Group>
-        <Form.Label>Create or Select the Office</Form.Label>
+        <Form.Label>Create / Select the Office</Form.Label>
         {loadingOffices ? (
           <LoadingBox></LoadingBox>
         ) : errorOffices ? (
           <MessageBox variant="danger">{errorOffices}</MessageBox>
         ) : (
           <InputGroup className="mb-3" controlid="office">
+          <Button onClick={handleCreateSelect}>
+              {inputReadOnly ? 'Create' : 'Select'} Office
+            </Button>
+            <Form.Control
+              name="office"
+              value={translationData.office}
+              required
+              placeholder={
+                !inputReadOnly
+                  ? 'Please type an office'
+                  : 'Please select an office'
+              }
+              onChange={!inputReadOnly ? handleChange : null}
+              disabled={inputReadOnly ? true : false}
+            />
             <select
+              name="offices"
               title="create or select"
               onChange={(e) =>
-                setPostData({ ...postData, office: e.target.value })
+                setTranslationData({ 
+                  ...translationData, 
+                  office: e.target.value 
+                })
               }
+              onClick={() => setInputReadOnly(true)}
             >
               {offices.map((office) => (
-                <option key={office} value={office} href="#">
+                <option key={office} value={office}>
                   {office}
                 </option>
               ))}
             </select>
-            <Form.Control name="office" value={postData.office} required />
           </InputGroup>
         )}
         <Form.Group className="mb-3" controlId="pagePrice">
           <Form.Label>Page price</Form.Label>
           <Form.Control
             name="pagePrice"
-            value={postData.pagePrice}
+            value={translationData.pagePrice}
             onChange={handleChange}
             required
           />
@@ -126,7 +159,7 @@ export default function CreateTranslations() {
           <Form.Label>Number of Pages</Form.Label>
           <Form.Control
             name="numberOfPages"
-            value={postData.numberOfPages}
+            value={translationData.numberOfPages}
             onChange={handleChange}
             required
           />
