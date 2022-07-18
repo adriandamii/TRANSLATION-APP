@@ -12,18 +12,22 @@ router.get(
     const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || '';
     const office = req.query.office || '';
-
+    const translated = req.query.translated || '';
+    
     const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
     const officeFilter = office ? { office } : {};
-
+    const translatedFilter = translated ? { translated } : {};
+    
     const count = await Translation.countDocuments({
       ...nameFilter,
       ...officeFilter,
+      ...translatedFilter,
     });
 
     const translations = await Translation.find({
       ...nameFilter,
       ...officeFilter,
+      ...translatedFilter,
     })
       .skip(pageSize * (page - 1))
       .limit(pageSize);
@@ -48,6 +52,13 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
+});
+
+router.get('/complete/:id', async (req, res) => {
+  const translation = await Translation.findById(req.params.id);
+  translation.translated = !translation.translated;
+  translation.save();
+  res.json(translation);
 });
 
 router.put('/:id', async (req, res) => {
