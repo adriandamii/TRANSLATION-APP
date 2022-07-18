@@ -24,11 +24,12 @@ export const getTranslations = ({
   pageNumber = '',
   name = '',
   office = '',
+  translated = '',
 }) => async (dispatch) => {
   dispatch({ type: TRANSLATION_LIST_REQUEST });
   try {
     const { data } = await Axios.get(
-      `http://localhost:5000/translations?pageNumber=${pageNumber}&name=${name}&office=${office}`
+      `http://localhost:5000/translations?pageNumber=${pageNumber}&name=${name}&office=${office}&translated=${translated}`
     );
     dispatch({ type: TRANSLATION_LIST_SUCCESS, payload: data });
   } catch (error) {
@@ -107,7 +108,7 @@ export const deleteTranslation = (id) => async (dispatch) => {
   try {
     await Axios.delete(`http://localhost:5000/translations/${id}`);
 
-    dispatch({ type: TRANSLATION_DELETE_SUCCESS});
+    dispatch({ type: TRANSLATION_DELETE_SUCCESS });
   } catch (error) {
     dispatch({ type: TRANSLATION_DELETE_FAIL });
   }
