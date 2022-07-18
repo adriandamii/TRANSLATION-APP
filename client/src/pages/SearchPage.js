@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { getTranslations, getOffices } from '../actions/translations';
@@ -12,8 +12,14 @@ import { LinkContainer } from 'react-router-bootstrap';
 import { Helmet } from 'react-helmet-async';
 
 export default function SearchPage() {
+  const [, setTranslations] = useState([]);
   const navigate = useNavigate();
-  const { name = 'all', office = 'all', pageNumber = 1 } = useParams();
+  const { 
+    name = 'all', 
+    office = 'all', 
+    pageNumber = 1, 
+    translated = 'all' 
+  } = useParams();
   const dispatch = useDispatch();
   const translationsList = useSelector((state) => state.translationsList);
   const { loading, error, translations, page, pages, count } = translationsList;
@@ -29,22 +35,29 @@ export default function SearchPage() {
   } = translationsOfficeList;
 
   useEffect(() => {
+    if (loading === false) {
+      setTranslations(translations);
+    }
+  }, [loading]);
+  
+  useEffect(() => {
     dispatch(getOffices());
-
     dispatch(
       getTranslations({
         pageNumber,
         name: name !== 'all' ? name : '',
         office: office !== 'all' ? office : '',
+        translated: translated !== 'all' ? translated : '',
       })
     );
-  }, [dispatch, name, office, pageNumber]);
+  }, [dispatch, name, office, pageNumber, translated]);
 
   const getFilterUrl = (filter) => {
     const filterPage = filter.page || 1;
     const filterOffice = filter.office || office;
+    const filterTranslated = filter.translated || translated;
     const filterName = filter.name || name;
-    return `/search/office/${filterOffice}/name/${filterName}/pageNumber/${filterPage}`;
+    return `/search/office/${filterOffice}/name/${filterName}/translated/${filterTranslated}/pageNumber/${filterPage}`;
   };
 
   return (
@@ -66,6 +79,7 @@ export default function SearchPage() {
                   <Link
                     className={'all' === office ? 'text-bold' : ''}
                     to={getFilterUrl({ office: 'all' })}
+                    style={{ textDecoration: 'none' }}
                   >
                     All
                   </Link>
@@ -75,6 +89,7 @@ export default function SearchPage() {
                     <Link
                       className={c === office ? 'text-bold' : ''}
                       to={getFilterUrl({ office: c })}
+                      style={{ textDecoration: 'none' }}
                     >
                       {c}
                     </Link>
@@ -82,6 +97,35 @@ export default function SearchPage() {
                 ))}
               </ul>
             )}
+            <ul>
+              <li>
+                <Link
+                  className={'all' === translated ? 'text-bold' : ''}
+                  to={getFilterUrl({ translated: 'all' })}
+                  style={{ textDecoration: 'none' }}
+                >
+                  All
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={'true' === translated ? 'text-bold' : ''}
+                  to={getFilterUrl({ translated: 'true' })}
+                  style={{ textDecoration: 'none' }}
+                >
+                  Translated
+                </Link>
+              </li>
+              <li>
+                <Link
+                  className={'false' === translated ? 'text-bold' : ''}
+                  to={getFilterUrl({ translated: 'false' })}
+                  style={{ textDecoration: 'none' }}
+                >
+                  Not translated
+                </Link>
+              </li>
+            </ul>
           </div>
         </Col>
         <Col md={9}>
@@ -117,6 +161,7 @@ export default function SearchPage() {
                     <Translation
                       key={translation._id}
                       translation={translation}
+                      setTranslations={setTranslations}
                     ></Translation>
                   ))}
                 </Col>
