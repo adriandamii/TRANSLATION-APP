@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTranslations, getOffices } from '../actions/translations';
 import { Helmet } from 'react-helmet-async';
@@ -8,10 +8,17 @@ import MessageBox from '../components/MessageBox';
 import { Col, Row } from 'react-bootstrap';
 
 const Home = () => {
+  const [, setTranslations] = useState([]);
   const dispatch = useDispatch();
   const translationsList = useSelector((state) => state.translationsList);
   const { loading, error, translations } = translationsList;
 
+  useEffect(() => {
+    if (loading === false) {
+      setTranslations(translations);
+    }
+  }, [loading]);
+  
   useEffect(() => {
     dispatch(getTranslations({}));
     dispatch(getOffices());
@@ -34,7 +41,7 @@ const Home = () => {
                 <MessageBox>No Translation Found</MessageBox>
               )}
               {translations.map((translation) => (
-                <Translation key={translation._id} translation={translation} />
+                <Translation key={translation._id} translation={translation} setTranslations={setTranslations}/>
               ))}
             </Col>
           </Row>
