@@ -25,11 +25,12 @@ export const getTranslations = ({
   name = '',
   office = '',
   translated = '',
+  month = '',
 }) => async (dispatch) => {
   dispatch({ type: TRANSLATION_LIST_REQUEST });
   try {
     const { data } = await Axios.get(
-      `http://localhost:5000/translations?pageNumber=${pageNumber}&name=${name}&office=${office}&translated=${translated}`
+      `http://localhost:5000/translations?pageNumber=${pageNumber}&name=${name}&office=${office}&translated=${translated}&month=${month}`
     );
     dispatch({ type: TRANSLATION_LIST_SUCCESS, payload: data });
   } catch (error) {
