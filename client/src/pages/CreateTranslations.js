@@ -88,7 +88,9 @@ export default function CreateTranslations() {
       <Helmet>
         <title>Create Translation</title>
       </Helmet>
-      <h1>Create Translation</h1>
+      <center>
+        <h1>Create Translation</h1>
+      </center>
       {loadingCreate && <LoadingBox></LoadingBox>}
       {errorCreate && <MessageBox variant="danger">{errorCreate}</MessageBox>}
       {successCreate && (
