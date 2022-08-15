@@ -11,6 +11,7 @@ export default function SearchBox() {
   const submitHandler = (e) => {
     e.preventDefault();
     navigate(`/search/name/${name}`);
+    setName("");
   };
 
   return (
