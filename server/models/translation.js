@@ -7,6 +7,8 @@ const translationSchema = mongoose.Schema(
     numberOfPages: { type: String, required: true },
     pagePrice: { type: String, required: true },
     translated: { type: Boolean, default: 'false' },
+    month: { type: Number, default: new Date().getMonth() + 1 },
+    date: { type: Date, default: new Date() },
   },
   {
     timestamps: true,
