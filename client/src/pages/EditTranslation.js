@@ -32,7 +32,7 @@ const EditTranslation = () => {
 
   useEffect(() => {
     if (successUpdate) {
-      navigate('/viewList');
+      navigate('/');
     }
     if (!translation || translation._id !== translationId || successUpdate) {
       dispatch({ type: TRANSLATION_UPDATE_RESET });
