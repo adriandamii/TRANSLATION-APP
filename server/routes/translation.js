@@ -8,31 +8,33 @@ const router = express.Router();
 router.get(
   '/',
   expressAsyncHandler(async (req, res) => {
-    const pageSize = 5;
-    const page = Number(req.query.pageNumber) || 1;
     const name = req.query.name || '';
     const office = req.query.office || '';
     const translated = req.query.translated || '';
-    
+    const month =
+      req.query.month && Number(req.query.month) !== 0
+        ? Number(req.query.month)
+        : 0;
     const nameFilter = name ? { name: { $regex: name, $options: 'i' } } : {};
     const officeFilter = office ? { office } : {};
     const translatedFilter = translated ? { translated } : {};
-    
+    const monthFilter = month ? { month: { $eq: month } } : {};
+
     const count = await Translation.countDocuments({
       ...nameFilter,
       ...officeFilter,
       ...translatedFilter,
+      ...monthFilter,
     });
 
     const translations = await Translation.find({
       ...nameFilter,
       ...officeFilter,
       ...translatedFilter,
+      ...monthFilter,
     })
-      .skip(pageSize * (page - 1))
-      .limit(pageSize);
 
-    res.send({ translations, count, page, pages: Math.ceil(count / pageSize) });
+    res.send({ translations, count });
   })
 );
 
@@ -54,13 +56,6 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/complete/:id', async (req, res) => {
-  const translation = await Translation.findById(req.params.id);
-  translation.translated = !translation.translated;
-  translation.save();
-  res.json(translation);
-});
-
 router.put('/:id', async (req, res) => {
   const { id } = req.params;
   const { name, office, pagePrice, numberOfPages } = req.body;
@@ -77,6 +72,13 @@ router.put('/:id', async (req, res) => {
   };
   await Translation.findByIdAndUpdate(id, updatedTranslation, { new: true });
   res.json(updatedTranslation);
+});
+
+router.get('/complete/:id', async (req, res) => {
+  const translation = await Translation.findById(req.params.id);
+  translation.translated = !translation.translated;
+  translation.save();
+  res.json(translation);
 });
 
 router.post('/', async (req, res) => {
