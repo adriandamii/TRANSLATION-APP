@@ -1,10 +1,20 @@
-import React from 'react';
-import { Badge, Form, ListGroup } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { 
+  Button, 
+  Form, 
+  ListGroup, 
+  OverlayTrigger, 
+  Popover, 
+} from 'react-bootstrap';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { deleteTranslation } from '../actions/translations';
 
 const Translation = (props) => {
+  const [detailButton, setDetailButton] = useState(false);
   const { translation, setTranslations } = props;
-  
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const completeTranslation = async (id) => {
     const data = await fetch(
       `http://localhost:5000/translations/complete/${id}`
@@ -20,29 +30,80 @@ const Translation = (props) => {
     );
   };
   
+  const deleteHandler = (translation) => {
+    if (window.confirm('Are you sure to delete?')) {
+      dispatch(deleteTranslation(translation._id));
+    }
+  };
+  
+  const popover = (
+    <Popover id="popover-basic">
+      <Popover.Header as="h3" className="pop">
+        Details
+        <Button
+          className="edit-button"
+          size="sm"
+          variant="secondary"
+          onClick={() => navigate(`/${translation._id}/edit`)}
+        >
+          <i className="fas fa-pen"></i>
+        </Button>
+      </Popover.Header>
+      <Popover.Body>
+        <strong>Name:</strong> {translation.name}
+        <br></br>
+        <strong>Office:</strong> {translation.office}
+        <br></br>
+        <strong>Pages:</strong> {translation.numberOfPages}
+        <br></br>
+        <strong>Price Page:</strong> {translation.pagePrice}
+        <br></br>
+        <strong>Created:</strong> {translation.date}
+        <br></br>
+      </Popover.Body>
+    </Popover>
+  );
+  
   return (
-    <div>
-      <ListGroup.Item
-        key={translation._id}
-        action
-        variant="warning"
-        className="d-flex justify-content-between"
-      >
-        <div className="d-flex">
-          <Form.Check
-            type="checkbox"
-            label=" "
-            checked={translation.translated}
-            onClick={() => completeTranslation(translation._id)}
-            readOnly
-          />
-          <Link to={`/${translation._id}`} style={{ textDecoration: 'none' }}>
-            {translation.name}
-          </Link>
-        </div>  
-        <Badge>{translation.numberOfPages} pages</Badge>
-      </ListGroup.Item>
-    </div>
+    <ListGroup.Item
+      key={translation._id}
+      action
+      className="list-item"
+      variant={translation.translated === true ? 'success' : 'danger'}
+    >
+      <div className="d-flex">
+        <Form.Check
+          type="checkbox"
+          label=" "
+          checked={translation.translated}
+          onClick={() => completeTranslation(translation._id)}
+          readOnly
+        />
+        {translation.name}
+      </div>
+      <div>
+        <Button
+          size="sm"
+          variant="danger"
+          type="button"
+          className="deleteButton"
+          onClick={() => deleteHandler(translation)}
+        >
+          <i className="fas fa-trash"></i>
+        </Button>{' '}
+        <OverlayTrigger trigger="click" placement="right" overlay={popover}>
+          <Button
+            size="sm"
+            type="button"
+            className="detail-button"
+            variant="success"
+            onClick={() => setDetailButton(!detailButton)}
+          >
+            {detailButton ? 'Hide details' : 'See details'}
+          </Button>
+        </OverlayTrigger>
+      </div>  
+    </ListGroup.Item>
   );
 };
 
