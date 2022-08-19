@@ -8,6 +8,10 @@ import SuccessBox from '../components/SuccessBox';
 import { TRANSLATION_UPDATE_RESET } from '../constants/actionTypes';
 import { useNavigate, useParams } from 'react-router-dom';
 import { detailsTranslation, updateTranslation } from '../actions/translations';
+import toast from 'react-hot-toast';
+
+const editToastFail = () => toast.error('Sorry! Translation unsuccessfully edited!');
+const editToastSuccess = () => toast.success('Translation successfully edited!');
 
 const EditTranslation = () => {
   const navigate = useNavigate();
@@ -33,6 +37,10 @@ const EditTranslation = () => {
   useEffect(() => {
     if (successUpdate) {
       navigate('/');
+      editToastSuccess();
+    }
+    if (errorUpdate) {
+      editToastFail();
     }
     if (!translation || translation._id !== translationId || successUpdate) {
       dispatch({ type: TRANSLATION_UPDATE_RESET });
@@ -43,7 +51,7 @@ const EditTranslation = () => {
       setPagePrice(translation.pagePrice);
       setNumberOfPages(translation.numberOfPages);
     }
-  }, [translation, dispatch, translationId, successUpdate, navigate]);
+  }, [translation, dispatch, translationId, successUpdate, navigate, errorUpdate]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,7 +66,7 @@ const EditTranslation = () => {
     );
   };
   return (
-    <div>
+    <div className="form-container">
       <div>
         <Helmet>
           <title>Update Translation</title>
