@@ -95,12 +95,8 @@ export const updateTranslation = (translation) => async (dispatch) => {
       translation
     );
     dispatch({ type: TRANSLATION_UPDATE_SUCCESS, payload: data });
-  } catch (error) {
-    const message =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
-    dispatch({ type: TRANSLATION_UPDATE_FAIL, error: message });
+  } catch (error) {     
+    dispatch({ type: TRANSLATION_UPDATE_FAIL, error: error });
   }
 };
 
