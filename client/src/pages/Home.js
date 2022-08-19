@@ -88,15 +88,16 @@ export default function Home() {
   }
   
   return (
-    <div>
+    <div className="main-container">
       <Helmet>
         <title>Search Translations</title>
       </Helmet>
-      <Row>
+      <Row className="main-row">
         <Col md={3}>
           <div className="d-flex">
             <h3>Filters</h3>{' '}
             <Button
+              className="ms-6"
               variant="primary"
               ref={target}
               onClick={() => setShow(!show)}
