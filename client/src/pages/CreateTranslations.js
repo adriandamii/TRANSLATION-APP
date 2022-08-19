@@ -8,6 +8,10 @@ import LoadingBox from '../components/LoadingBox';
 import MessageBox from '../components/MessageBox';
 import SuccessBox from '../components/SuccessBox';
 import { TRANSLATION_CREATE_RESET } from '../constants/actionTypes';
+import toast from 'react-hot-toast';
+
+const createToastSuccess = () => toast.success('Translation successfully created!');
+const createToastFail = () => toast.error('Sorry! Translation unsuccessfully created!');
 
 export default function CreateTranslations() {
   const [inputReadOnly, setInputReadOnly] = useState(true);
@@ -65,8 +69,12 @@ export default function CreateTranslations() {
     if (successCreate) {
       dispatch({ type: TRANSLATION_CREATE_RESET });
       navigate('/');
+      createToastSuccess();
     }
-  }, [translations, successCreate]);
+    if (errorCreate) {
+      createToastFail();
+    }
+  }, [translations, successCreate, errorCreate]);
 
   const handleSubmit = async (e) => {
     dispatch(createTranslation(translationData));
@@ -84,7 +92,7 @@ export default function CreateTranslations() {
   }
   
   return (
-    <div>
+    <div className="form-container">
       <Helmet>
         <title>Create Translation</title>
       </Helmet>
