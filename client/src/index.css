@@ -1,5 +1,5 @@
 .form-container {
-  width: 500px;
+  max-width: 500px;
   margin:auto;
 }
 
@@ -9,6 +9,18 @@
 
 p {
   text-decoration: none;
+}
+
+.main-container {
+  margin-left: 15px;
+}
+
+.main-row {
+  max-width: 100%;
+}
+
+.info-icon {
+  font-size: 20px;
 }
 
 .list-item {
