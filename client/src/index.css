@@ -39,6 +39,7 @@ p {
 .deleteButton, .detail-button {
   margin-top: -10px;
   margin-bottom: -7px;
+  box-shadow: 10 10 10 10;
 }
 
 .pop {
