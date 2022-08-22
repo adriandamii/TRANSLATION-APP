@@ -20,8 +20,11 @@ export default function SearchBox() {
   const [name, setName] = useState('');
   const submitHandler = (e) => {
     e.preventDefault();
-    navigate(`/search/name/${name}`);
-    setName("");
+    if (name === '') {
+      infoSearch();
+    } else {
+      navigate(`/search/name/${name}`);
+    }
   };
 
   return (
