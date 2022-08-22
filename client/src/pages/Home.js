@@ -12,6 +12,14 @@ import { Helmet } from 'react-helmet-async';
 import { months } from '../utils';
 import { TRANSLATION_DELETE_RESET } from '../constants/actionTypes';
 
+const initialDnDState = {
+  draggedFrom: null,
+  draggedTo: null,
+  isDragging: false,
+  originalOrder: [],
+  updatedOrder: [],
+};
+
 export default function Home() {
   const [show, setShow] = useState(false);
   const target = useRef(null);
@@ -42,14 +50,67 @@ export default function Home() {
   const deletedTranslation = useSelector((state) => state.deletedTranslation);
   const { error: errorDelete, success: successDelete } = deletedTranslation;
   
+  const [list, setList] = useState([]);
+  const [dragAndDrop, setDragAndDrop] = useState(initialDnDState);
+  
   useEffect(() => {
     if (loading === false) {
       setTranslations(translations);
+      setList(translations);
       for (let i = 0; i < translations.length; ++i) {
         setArrPrices((oldArray) => [...oldArray, translations[i].pagePrice]);
       }
     }
   }, [loading]);
+  
+  const onDragStart = (event) => {
+    const initialPosition = Number(event.currentTarget.dataset.position);
+    setDragAndDrop({
+      ...dragAndDrop,
+      draggedFrom: initialPosition,
+      isDragging: true,
+      originalOrder: list,
+    });
+    event.dataTransfer.setData('text/html', '');
+  };
+  
+  const onDragOver = (event) => {
+    event.preventDefault();
+    let newList = dragAndDrop.originalOrder;
+    const draggedFrom = dragAndDrop.draggedFrom;
+    const draggedTo = Number(event.currentTarget.dataset.position);
+    const itemDragged = newList[draggedFrom];
+    const remainingItems = newList.filter(
+      (item, index) => index !== draggedFrom
+    );
+    newList = [
+      ...remainingItems.slice(0, draggedTo),
+      itemDragged,
+      ...remainingItems.slice(draggedTo),
+    ];
+    if (draggedTo !== dragAndDrop.draggedTo) {
+      setDragAndDrop({
+        ...dragAndDrop,
+        updatedOrder: newList,
+        draggedTo: draggedTo,
+      });
+    }
+  };
+  const onDrop = (event) => {
+    setList(dragAndDrop.updatedOrder);
+    setDragAndDrop({
+      ...dragAndDrop,
+      draggedFrom: null,
+      draggedTo: null,
+      isDragging: false,
+    });
+  };
+  const onDragLeave = () => {
+    setDragAndDrop({
+      ...dragAndDrop,
+      draggedTo: null,
+    });
+  };
   
   useEffect(() => {
     if (successDelete) {
@@ -241,12 +302,22 @@ export default function Home() {
                 )}
                 <Col md={12}>
                   <ListGroup variant="flush">
-                    {translations.map((translation) => (
-                      <Translation
-                        key={translation._id}
-                        translation={translation}
-                        setTranslations={setTranslations}
-                      />
+                    {list.map((translation, index) => (
+                      <span
+                        key={index}
+                        data-position={index}
+                        draggable
+                        onDragStart={onDragStart}
+                        onDragOver={onDragOver}
+                        onDrop={onDrop}
+                        onDragLeave={onDragLeave}
+                      >
+                        <Translation
+                          key={index}
+                          translation={translation}
+                          setTranslations={setTranslations}
+                        />
+                      </span>
                     ))}
                   </ListGroup>
                 </Col>
