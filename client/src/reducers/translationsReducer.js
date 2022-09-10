@@ -32,8 +32,6 @@ export const translationListReducer = (
       return { 
         loading: false, 
         translations: action.payload.translations,
-        pages: action.payload.pages,
-        page: action.payload.page,
         count: action.payload.count,
       };
     case TRANSLATION_LIST_FAIL:
